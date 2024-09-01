@@ -16,6 +16,8 @@ window.addEventListener("load", function () {
           this.game.keys.push(e.key);
         } else if (e.key === " ") {
           this.game.player.shootTop();
+        } else if (e.key === "d") {
+          this.game.debug = !this.game.debug;
         }
       });
 
@@ -59,9 +61,13 @@ window.addEventListener("load", function () {
       this.height = 190;
       this.x = 20;
       this.y = 100;
+      this.frameX = 0;
+      this.frameY = 0;
+      this.maxFrame = 37;
       this.speedY = 0;
       this.maxSpeed = 3;
       this.projectiles = [];
+      this.image = document.getElementById("player");
     }
 
     update() {
@@ -78,11 +84,17 @@ window.addEventListener("load", function () {
       this.projectiles = this.projectiles.filter(
         (projectile) => !projectile.markedForDeletion
       );
+
+      //sprite animation
+      if(this.frameX < this.maxFrame) this.frameX++;
+      else this.frameX = 0;
     }
 
     draw(context) {
-      context.fillStyle = "green";
-      context.fillRect(this.x, this.y, this.width, this.height);
+      if (this.game.debug) {
+        context.strokeRect(this.x, this.y, this.width, this.height);
+      }
+      context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
       this.projectiles.forEach((projectile) => {
         projectile.draw(context);
       });
@@ -248,6 +260,7 @@ window.addEventListener("load", function () {
       this.gameTime = 0;
       this.timeLimit = 10000;
       this.speed = 1;
+      this.debug = false;
     }
 
     update(deltaTime) {
