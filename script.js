@@ -39,6 +39,7 @@ window.addEventListener("load", function () {
       this.height = 3;
       this.speed = 3;
       this.markedForDeletion = false;
+      this.image = document.getElementById("projectile");
     }
 
     update() {
@@ -47,8 +48,7 @@ window.addEventListener("load", function () {
     }
 
     draw(context) {
-      context.fillStyle = "yellow";
-      context.fillRect(this.x, this.y, this.width, this.height);
+      context.drawImage(this.image, this.x, this.y);
     }
   }
 
@@ -68,14 +68,23 @@ window.addEventListener("load", function () {
       this.maxSpeed = 3;
       this.projectiles = [];
       this.image = document.getElementById("player");
+      this.powerUp = false;
+      this.powerUpTime = 0;
+      this.powerUpTimer = 0;
+      this.powerUpLimit = 10000;
     }
 
-    update() {
+    update(deltaTime) {
       if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
       else if (this.game.keys.includes("ArrowDown"))
         this.speedY = this.maxSpeed;
       else this.speedY = 0;
       this.y += this.speedY;
+
+      //vertical bounderies
+      if(this.y > this.game.height - this.height * 0.5) this.y = this.game.height - this.height * 0.5;
+
+      if(this.y < -this.height * 0.5) this.y = -this.height * 0.5;
 
       //handle projectile
       this.projectiles.forEach((projectile) => {
@@ -86,18 +95,41 @@ window.addEventListener("load", function () {
       );
 
       //sprite animation
-      if(this.frameX < this.maxFrame) this.frameX++;
+      if (this.frameX < this.maxFrame) this.frameX++;
       else this.frameX = 0;
+
+      //power up
+      if(this.powerUp) {
+        if(this.powerUpTime > this.powerUpLimit) {
+          this.powerUp = false;
+          this.powerUpTime = 0;
+          this.frameY = 0;
+        } else {
+          this.powerUpTime += deltaTime;
+          this.frameY = 1;
+          this.game.ammo += 0.1;
+        }
+      }
     }
 
     draw(context) {
       if (this.game.debug) {
         context.strokeRect(this.x, this.y, this.width, this.height);
       }
-      context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
       this.projectiles.forEach((projectile) => {
         projectile.draw(context);
       });
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        this.frameY * this.height,
+        this.width,
+        this.height,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     }
 
     shootTop() {
@@ -107,6 +139,23 @@ window.addEventListener("load", function () {
         );
         this.game.ammo--;
       }
+
+      if(this.powerUp) this.shootBottom();
+    }
+
+    shootBottom() { 
+      if (this.game.ammo > 0) {
+        this.projectiles.push(
+          new Projectile(this.game, this.x + 80, this.y + 175)
+        );
+        this.game.ammo--;
+      }
+    }
+
+    enterPowerUp() {
+      this.powerUpTimer = 0;
+      this.powerUp = true;
+      this.game.ammo = this.game.maxAmmo;
     }
   }
 
@@ -126,16 +175,26 @@ window.addEventListener("load", function () {
       if (this.x + this.width < 0) this.markedForDeletion = true;
 
       //sprite animation
-      if(this.frameX < this.maxFrame) this.frameX++;
+      if (this.frameX < this.maxFrame) this.frameX++;
       else this.frameX = 0;
     }
     draw(context) {
       if (this.game.debug) {
         context.strokeRect(this.x, this.y, this.width, this.height);
-      } 
-      context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+      }
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        this.frameY * this.height,
+        this.width,
+        this.height,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
       context.fillStyle = "black";
-      context.fillText(this.lives, this.x, this.y, this.height);
+      if(this.game.debug) context.fillText(this.lives, this.x, this.y, this.height);
       context.font = "20px Helvetica";
     }
   }
@@ -166,6 +225,20 @@ window.addEventListener("load", function () {
     }
   }
 
+  class LuckyFish extends Enemy {
+    constructor(game) {
+      super(game);
+      this.width = 99;
+      this.height = 95;
+      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.image = document.getElementById("lucky");
+      this.frameY = Math.floor(Math.random() * 2);
+      this.lives = 3;
+      this.score = 15;
+      this.type = "lucky";
+    }
+  }
+
   class Layer {
     constructor(game, image, speedModifier) {
       this.game = game;
@@ -178,24 +251,24 @@ window.addEventListener("load", function () {
     }
 
     update() {
-      if(this.x <= -this.width) this.x = 0;
-      this.x -= this.game.speed * this.speedModifier
+      if (this.x <= -this.width) this.x = 0;
+      this.x -= this.game.speed * this.speedModifier;
     }
 
     draw(context) {
       // adiciona duas imagens iguais pra fazer o efeito de loop
-      context.drawImage(this.image, this.x, this.y)
-      context.drawImage(this.image, this.x + this.width, this.y)
+      context.drawImage(this.image, this.x, this.y);
+      context.drawImage(this.image, this.x + this.width, this.y);
     }
   }
 
   class Background {
     constructor(game) {
       this.game = game;
-      this.image1 = document.getElementById('layer1');
-      this.image2 = document.getElementById('layer2');
-      this.image3 = document.getElementById('layer3');
-      this.image4 = document.getElementById('layer4');
+      this.image1 = document.getElementById("layer1");
+      this.image2 = document.getElementById("layer2");
+      this.image3 = document.getElementById("layer3");
+      this.image4 = document.getElementById("layer4");
       this.layer1 = new Layer(this.game, this.image1, 0.2);
       this.layer2 = new Layer(this.game, this.image2, 0.4);
       this.layer3 = new Layer(this.game, this.image3, 1);
@@ -204,11 +277,11 @@ window.addEventListener("load", function () {
     }
 
     update() {
-      this.layers.forEach(layer => layer.update())
+      this.layers.forEach((layer) => layer.update());
     }
 
     draw(context) {
-      this.layers.forEach(layer => layer.draw(context))
+      this.layers.forEach((layer) => layer.draw(context));
     }
   }
 
@@ -216,7 +289,7 @@ window.addEventListener("load", function () {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
-      this.fontFamily = "Helvetica";
+      this.fontFamily = "Bangers";
       this.color = "white";
     }
 
@@ -231,32 +304,41 @@ window.addEventListener("load", function () {
       //score
       context.fillText("Score: " + this.game.score, 20, 40);
 
-      //ammo
-      for (let i = 0; i < this.game.ammo; i++) {
-        context.fillRect(20 + 5 * i, 50, 3, 20);
-      }
-
       //time
-      const formattedTime = (this.game.gameTime / 1000).toFixed(1)
-      context.fillText('Timer: ' + formattedTime, 20, 100)
+      const formattedTime = (this.game.gameTime / 1000).toFixed(1);
+      context.fillText("Timer: " + formattedTime, 20, 100);
 
       //game over message
-      if(this.game.gameOver){
+      if (this.game.gameOver) {
         context.textAlign = "center";
         let message1;
         let message2;
-        if(this.game.score >= this.game.winningScore){
+        if (this.game.score >= this.game.winningScore) {
           message1 = "You win!";
           message2 = "Well done!";
         } else {
           message1 = "You lose!";
           message2 = "Try again next time!";
         }
-        context.font = '50px ' + this.fontFamily;
-        context.fillText(message1, this.game.width / 2, this.game.height / 2 - 40);
+        context.font = "70px " + this.fontFamily;
+        context.fillText(
+          message1,
+          this.game.width / 2,
+          this.game.height / 2 - 20
+        );
 
-        context.font = '25px ' + this.fontFamily;
-        context.fillText(message2, this.game.width / 2, this.game.height / 2 + 40);
+        context.font = "25px " + this.fontFamily;
+        context.fillText(
+          message2,
+          this.game.width / 2,
+          this.game.height / 2 + 20
+        );
+      }
+
+      //ammo
+      if(this.game.player.powerUp) context.fillStyle = '#ffffbd';
+      for (let i = 0; i < this.game.ammo; i++) {
+        context.fillRect(20 + 5 * i, 50, 3, 20);
       }
       context.restore();
     }
@@ -288,12 +370,12 @@ window.addEventListener("load", function () {
     }
 
     update(deltaTime) {
-      if(!this.gameOver) this.gameTime += deltaTime;
-      if(this.gameTime > this.timeLimit) this.gameOver = true;
-      
+      if (!this.gameOver) this.gameTime += deltaTime;
+      if (this.gameTime > this.timeLimit) this.gameOver = true;
+
       this.background.update();
       this.background.layer4.update(); //aqui para ficar na frente de tudo
-      this.player.update();
+      this.player.update(deltaTime);
 
       if (this.ammoTimer > this.ammoInterval) {
         if (this.ammo < this.maxAmmo) this.ammo++;
@@ -306,6 +388,9 @@ window.addEventListener("load", function () {
         enemy.update();
         if (this.checkCollisions(this.player, enemy)) {
           enemy.markedForDeletion = true;
+          if(enemy.type === "lucky") this.player.enterPowerUp();
+          else this.score --;
+          
         }
 
         this.player.projectiles.forEach((projectile) => {
@@ -346,8 +431,9 @@ window.addEventListener("load", function () {
 
     addEnemy() {
       const randomize = Math.random();
-      if(randomize < 0.5) this.enemies.push(new Angler1(this));
-      else this.enemies.push(new Angler2(this));
+      if (randomize < 0.3) this.enemies.push(new Angler1(this));
+      else if (randomize < 0.6) this.enemies.push(new Angler2(this));
+      else this.enemies.push(new LuckyFish(this));
     }
 
     checkCollisions(rect1, rect2) {
