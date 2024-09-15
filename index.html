@@ -13,9 +13,107 @@
       href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
       rel="stylesheet"
     />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <canvas id="canvas1"></canvas>
+    <div class="container">
+      <header>
+        <h1>Jogo 2d feito com JavaScript!</h1>
+
+        <h2>Como Jogar:</h2>
+        <ul>
+          <li>Use as setas do teclado para mover o personagem.</li>
+          <li>
+            Pressione a barra de espaço para atirar projéteis nos inimigos.
+          </li>
+          <li>Evite colidir com os inimigos e seus ataques.</li>
+          <li>
+            Colete power-ups para ganhar habilidades especiais e aumentar sua
+            pontuação.
+          </li>
+          <li>Para ganhar, você precisa fazer 120 pontos em um minuto.</li>
+        </ul>
+      </header>
+      <div class="game-area">
+        <canvas id="canvas1"></canvas>
+      </div>
+
+      <div class="game-explanation">
+        <section>
+          <h2>Sobre o jogo</h2>
+          <p>
+            Este jogo foi criado utilizando JavaScript puro, sem o uso de
+            frameworks, aproveitando a tag <code>&lt;canvas&gt;</code> para
+            renderizar os gráficos. A estrutura do jogo é baseada em orientação
+            a objetos, o que facilita a organização e a manutenção do código.
+            Cada personagem, inimigo e elemento do jogo é representado como um
+            objeto, permitindo uma interação dinâmica e eficiente entre eles.
+          </p>
+        </section>
+
+        <section>
+          <h2>Elementos do Jogo:</h2>
+          <ul>
+            <li>
+              <strong>Projéteis:</strong> Usados pelo jogador para atacar
+              inimigos.
+            </li>
+            <li>
+              <strong>Gears:</strong> Partículas geradas durante explosões.
+            </li>
+            <li>
+              <strong>Explosões de Fumaça e Fogo:</strong> Efeitos visuais para
+              explosões.
+            </li>
+            <li>
+              <strong>Escudo:</strong> Protege o jogador de ataques inimigos.
+            </li>
+            <li><strong>Fireball:</strong>Disparos feitos pelo jogador.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Ambiente:</h2>
+          <ul>
+            <li>
+              O jogo possui múltiplas camadas de fundo para criar um efeito de
+              paralaxe, adicionando profundidade ao ambiente do jogo.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Sons:</h2>
+          <ul>
+            <li>
+              O jogo inclui efeitos sonoros para power-ups, explosões, acertos,
+              e outros eventos importantes para melhorar a imersão do jogador.
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <footer>
+        <p>
+          Desenvolvido por
+          <a href="https://alexandrefb.com" target="_blank"
+            >Alexandre Bisognin</a
+          >
+          durante o curso
+          <a
+            href="https://www.udemy.com/course/learn-game-development-with-javascript/?couponCode=PLOYALTY0923"
+            target="_blank"
+            >Learn Game Development with JavaScript</a
+          >
+        </p>
+      </footer>
+    </div>
 
     <!-- characters -->
     <img id="player" class="d-none" src="assets/characters/player.png" />
@@ -42,8 +140,8 @@
       class="d-none"
       src="assets/props/fireExplosion.png"
     />
-    <img id="shield" src="assets/props/shield.png" />
-    <img id="fireball" src="assets/props/fireball.png" />
+    <img id="shield" class="d-none" src="assets/props/shield.png" />
+    <img id="fireball" class="d-none" src="assets/props/fireball.png" />
 
     <!-- environment -->
     <img id="layer1" class="d-none" src="assets/environment/layer1.png" />
