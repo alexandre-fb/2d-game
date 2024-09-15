@@ -40,7 +40,34 @@ a:hover {
   color: rgb(112, 185, 102);
 }
 
-#canvas1 {
+.game-area {
+  position: relative;
+}
+
+.game-area #button-start-game {
+ background-color: rgb(112, 185, 102);
+ padding: 10px;
+ font-size: 1.5rem;
+ cursor: pointer;
+ width: 80px;
+ height: 80px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ transition: 200ms ease-in-out;
+ border: none;
+ border-radius: 100%;
+ position: absolute;
+ left: 50%;
+ top: 50%;
+ transform: translate(-50%, -50%);
+}
+
+.game-area #button-start-game:hover {
+ background-color: rgb(89, 147, 82);
+}
+
+.game-area #canvas1 {
   border: 5px solid rgb(112, 185, 102);
   background: #4d79bc;
   max-width: 100%;
